@@ -1,3 +1,9 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    return header('Location: http://localhost:81/konterku/views/login/' );
+}
+?>
 <!doctype html>
 <html lang="en">
   <head>
