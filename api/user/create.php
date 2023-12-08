@@ -15,8 +15,8 @@
     $item->pass = $data->pass;
     $item->roles = $data->roles;
     if($item->createUser()){
-        echo 'User created successfully.';
+        echo json_encode('User created successfully.');
     } else{
-        echo 'User could not be created.';
+        echo json_encode('User could not be created.');
     }
 ?>

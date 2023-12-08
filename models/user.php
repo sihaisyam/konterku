@@ -55,7 +55,7 @@ class User{
         email,
         pass,
         roles,
-        created,        
+        created        
         FROM
         ". $this->db_table ."
         WHERE

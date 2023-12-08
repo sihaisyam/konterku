@@ -11,8 +11,11 @@ if (!isset($_SESSION['user'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Users - Konterku</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.min.js" integrity="sha384-heAjqF+bCxXpCWLa6Zhcp4fu20XoNIA98ecBC1YkdXhszjoejr5y9Q77hIrv8R9i" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -25,8 +28,7 @@ if (!isset($_SESSION['user'])) {
                 <div class="row">
                     <div class="col col-sm-9">USERS</div>
                     <div class="col col-sm-3">
-                        <button type="button" id="add_data" class="btn
-                        btn-success btn-sm float-end">Add</button>
+                        <button type="button" id="add_data" class="btn btn-success btn-sm float-end">Add</button>
                     </div>
                 </div>
             </div>
@@ -58,12 +60,12 @@ if (!isset($_SESSION['user'])) {
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Name</label>
-                                <input type="text" name="name" id="name" class="form-control" />
-                                <span id="name_error" class="text-danger"></span>
+                                <input type="text" name="fullname" id="fullname" class="form-control" />
+                                <span id="fullname_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input type="email  " name="email" id="email" class="form-control" />
+                                <input type="email" name="email" id="email" class="form-control" />
                                 <span id="email_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -94,12 +96,14 @@ if (!isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
+    
+    
     <script>
     $(document).ready(function() {
         showAll();
 
         $('#add_data').click(function(){
-            $('#dynamic_modal_title').text('Add Data');
+            $('#dynamic_modal_title').text('Add Data User');
             $('#sample_form')[0].reset();
             $('#action').val('Add');
             $('#action_button').text('Add');
@@ -111,14 +115,14 @@ if (!isset($_SESSION['user'])) {
             event.preventDefault();
             if($('#action').val() == "Add"){
                 var formData = {
-                'name' : $('#name').val(),
+                'fullname' : $('#fullname').val(),
                 'email' : $('#email').val(),
                 'pass' : $('#pass').val(),
                 'roles' : $('#roles').val()
                 }
 
                 $.ajax({
-                    url:"http://localhost:81/wpnr/oop/api/users/create.php",
+                    url:"http://localhost:81/konterku/api/user/create.php",
                     method:"POST",
                     data: JSON.stringify(formData),
                     success:function(data){
@@ -135,14 +139,14 @@ if (!isset($_SESSION['user'])) {
             }else if($('#action').val() == "Update"){
                 var formData = {
                     'id' : $('#id').val(),
-                    'name' : $('#name').val(),
+                    'fullname' : $('#fullname').val(),
                     'email' : $('#email').val(),
                     'pass' : $('#pass').val(),
                     'roles' : $('#roles').val()
                 }
 
                 $.ajax({
-                    url:"http://localhost:81/wpnr/oop/api/users/update.php",
+                    url:"http://localhost:81/konterku/api/user/update.php",
                     method:"PUT",
                     data: JSON.stringify(formData),
                     success:function(data){
@@ -164,17 +168,17 @@ if (!isset($_SESSION['user'])) {
         $.ajax({
             type: "GET",
             contentType: "application/json",
-            url:"http://localhost:81/wpnr/oop/api/users/read.php",
+            url:"http://localhost:81/konterku/api/user/read.php",
             success: function(response) {
             // console.log(response);
                 var json = response.body;
                 var dataSet=[];
                 for (var i = 0; i < json.length; i++) {
                     var sub_array = {
-                        'name' : json[i].name,
+                        'fullname' : json[i].fullname,
                         'email' : json[i].email,
-                        'pass' : json[i].pass,
                         'roles' : json[i].roles,
+                        'created' : json[i].created,
                         'action' : '<button onclick="showOne('+json[i].id+')" class="btn btn-sm btn-warning">Edit</button>'+
                         '<button onclick="deleteOne('+json[i].id+')" class="btn btn-sm btn-danger">Delete</button>'
                     };
@@ -183,10 +187,10 @@ if (!isset($_SESSION['user'])) {
                 $('#sample_data').DataTable({
                     data: dataSet,
                     columns : [
-                        { data : "name" },
+                        { data : "fullname" },
                         { data : "email" },
-                        { data : "pass" },
                         { data : "roles" },
+                        { data : "created" },
                         { data : "action" }
                     ]
                 });
@@ -209,13 +213,12 @@ if (!isset($_SESSION['user'])) {
             type: "GET",
             contentType: "application/json",
             url:
-            "http://localhost:81/wpnr/oop/api/users/read.php?id="+id,
+            "http://localhost:81/konterku/api/user/read.php?id="+id,
             success: function(response) {
                 $('#id').val(response.id);
-                $('#name').val(response.name);
+                $('#fullname').val(response.fullname);
                 $('#email').val(response.email);
-                $('#pass').val(response.pass);
-                $('#roles').val(response.roles);
+                $('#roles').val(response.roles).change();
             },
             error: function(err) {
                 console.log(err);
@@ -226,7 +229,7 @@ if (!isset($_SESSION['user'])) {
     function deleteOne(id) {
         alert('Yakin untuk hapus data ?');
         $.ajax({
-            url:"http://localhost:81/wpnr/oop/api/users/delete.php",
+            url:"http://localhost:81/konterku/api/user/delete.php",
             method:"DELETE",
             data: JSON.stringify({"id" : id}),
             success:function(data){
