@@ -10,6 +10,8 @@
   </head>
   <body>
     <div class="container">
+        <div id="message">
+        </div>
         <div class="container px-4">
             <form class="row g-1" id="sample_form">
                 <div class="col-md-6">
@@ -42,12 +44,12 @@
                     data: JSON.stringify(formData),
                     success:function(data){
                         $('#action_button').attr('disabled', false);
-                        $('#message').html('<div class="alert alert-success">'+data.message+'</div>');
                         window.location.href = 'http://localhost:81/konterku/views/dashboard/';
 
                     },
-                    error: function(err) {
+                    error: function(err) {                        
                         console.log(err);   
+                        $('#message').html('<div class="alert alert-danger">'+err.responseJSON+'</div>');   
                     }
                 });
             });
