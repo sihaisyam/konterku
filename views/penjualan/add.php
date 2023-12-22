@@ -34,29 +34,49 @@ if (!isset($_SESSION['user'])) {
                     <label for="kasir" class="form-label">Kasir</label>
                     <input type="text" class="form-control" id="kasir" value="<?php echo $_SESSION['user']['fullname']; ?>">
                 </div>
-                <div id="target_area">
-                    <div class="row g-1" >
-                        <div class="col-2">
+                <div class="col-12" id="target_area">
+                    <div class="row g-1 p-1" >
+                        <div class="col-md-2">
                             <label for="kasir" class="form-label">Kode Barang</label>
-                            <input type="text" class="form-control" name="jumlah[]" id="jumlah">
                         </div>
-                        <div class="col-2">
+                        <div class="col-md-2">
                             <label for="kasir" class="form-label">Harga</label>
-                            <input type="text" class="form-control" name="jumlah[]" id="jumlah">
                         </div>
-                        <div class="col-2">
+                        <div class="col-md-2">
                             <label for="kasir" class="form-label">QTY</label>
-                            <input type="text" class="form-control" name="jumlah[]" id="jumlah">
                         </div>
-                        <div class="col-2">
+                        <div class="col-md-2">
                             <label for="kasir" class="form-label">Sub Total</label>
-                            <input type="text" class="form-control" name="jumlah[]" id="jumlah">
                         </div>
-                        <div class="col-2">
-                            <label for="deleteBrg" class="form-label">Action</label><br>
-                            <button onclick="" class="btn btn-danger" >Delete</button>
-                            <button onclick="" class="btn btn-secondary" id="deleteBrg">Add</button>
+                        <div class="col-md-2">
+                            <label for="deleteBrg" class="form-label">Action</label>
                         </div>
+                    </div>
+                    <div class="row g-1 p-1" data-area="area_50">
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="kd_brg[]" id="kd_brg">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="harga_jual[]" id="harga_jual">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="qty[]" id="qty">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="sub_total[]" id="sub_total" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" id="delete_colom" class="btn btn-danger" >Delete</button>
+                            <button type="button" id="add_colom" class="btn btn-secondary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-1">
+                    <div class="col-md-5 text-end align-items-center">
+                        <label for="total" class="form-label">GRAND TOTAL</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="total" readonly>
                     </div>
                 </div>
                 <div class="col-12">
@@ -68,39 +88,72 @@ if (!isset($_SESSION['user'])) {
     <script>
         $(document).ready(function() {
 
+            handleBtnDeleteColom();
+            handleBtnAddColom();
+            handleHitung();
+
             $('#sample_form').on('submit', function(event){
                 event.preventDefault();
                 
-                // var formData = {
-                // 'fullname' : $('#fullname').val(),
-                // 'email' : $('#email').val(),
-                // 'pass' : $('#pass').val(),
-                // 'roles' : $('#roles').val()
-                // }
-                // $.ajax({
-                //     url:"http://localhost:81/konterku/api/auth/register.php",
-                //     method:"POST",
-                //     data: JSON.stringify(formData),
-                //     success:function(data){
-                //         $('#action_button').attr('disabled', false);
-                //         $('#message').html('<div class="alert alert-success">'+data.message+'</div>');
-                //     },
-                //     error: function(err) {
-                //         console.log(err);   
-                //     }
-                // });
+                var formData = {
+                'kd_brg' : $('#kd_brg').val()
+                }
+                $.ajax({
+                    url:"http://localhost:81/konterku/api/penjualan/create.php",
+                    method:"POST",
+                    data: JSON.stringify(formData),
+                    success:function(data){
+                        $('#action_button').attr('disabled', false);
+                        $('#message').html('<div class="alert alert-success">'+data.message+'</div>');
+                    },
+                    error: function(err) {
+                        console.log(err);   
+                    }
+                });
             });
 
-            function handleHitung(){
-                $('input#jumlah').off("input").on("input", function(){
+            function handleBtnAddColom(){
+                var target_area = $("#target_area");
+                $("button#add_colom").off("click").on("click", function(){
                     var _this = $(this),
-                    currentArea = _this.parent().parent().parent();
-                    bi = currentArea.find('input[name="biaya_iuran[]"]').val();
-                    qty = currentArea.find('input[name="jumlah[]"]').val();
-                    // console.log(bi+"*"+qty);
-                    total = bi*qty;
+                    currentArea = _this.parent().parent(),
+                    cloningan = currentArea.clone();
 
-                    currentArea.find('input[name="total[]"]').val(total);
+                    target_area.append(cloningan);
+                    setTimeout(() => {
+                        handleBtnAddColom();
+                        handleHitung();
+                        handleBtnDeleteColom();
+                    }, 500);
+                });
+            }
+            
+            function handleBtnDeleteColom(){
+                $("button#delete_colom").off("click").on("click", function(){
+                    var el_count = $('[data-area]').length;
+                    //alert(el_count);
+                    if(el_count < 2){
+                        return false;
+                    }
+
+                    var _this = $(this),
+                    currentArea = _this.parent().parent();
+
+                    currentArea.remove();
+                    gotoView();
+                });
+            }
+
+            function handleHitung(){
+                $('input#qty').off("input").on("input", function(){
+                    var _this = $(this),
+                    currentArea = _this.parent().parent();
+                    harga = currentArea.find('input[name="harga_jual[]"]').val();
+                    qty = currentArea.find('input[name="qty[]"]').val();
+                    // console.log(bi+"*"+qty);
+                    total = harga*qty;
+
+                    currentArea.find('input[name="sub_total[]"]').val(total);
                     hitungTotal();
                 });   
             }
@@ -109,12 +162,17 @@ if (!isset($_SESSION['user'])) {
                 var total = 0;
                 $('[data-area="area_50"]').each(function(){
                     var _this = $(this);
-                    subtot =  _this.find("input[name='total[]']").val();
+                    subtot =  _this.find("input[name='sub_total[]']").val();
                     total += parseFloat(subtot);
                 });
-                $('#grand_total').val(total);
+                $('#total').val(total);
                 // console.log(total);
 
+            }
+
+            function gotoView(){
+                var el = $('[data-area="area_50"]').find(".row:last-child")[0];
+                el.scrollIntoView();
             }
         });
     </script>
