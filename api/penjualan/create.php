@@ -16,6 +16,7 @@ $item->date_sell = $data->date_sell;
 $item->nama_customer = $data->nama_customer;
 $item->kasir = $data->kasir;
 $item->grand_total = $data->grand_total;
+$db->beginTransaction();
 if($item->createSell()){
     $details = new PenjualanDetail($db);
     foreach($data->details as $barang){ 
@@ -25,10 +26,16 @@ if($item->createSell()){
         $details->harga_jual = $barang->harga_jual;
         $details->qty = $barang->qty;
         $details->sub_total = $barang->sub_total;
-        $details->createSellDetail();
+        if(!$details->createSellDetail()){
+            $db->rollBack();
+            echo json_encode('Produk '.$barang->nama_barang.' saldo tidak mencukupi.');
+            return false;
+        }
     }
+    $db->commit();
     echo json_encode('Penjualan created successfully.');
 } else{
+    $db->rollBack();
     echo 'Penjualan could not be created.';
 }
 ?>

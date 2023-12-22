@@ -1,28 +1,28 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, GET");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-AllowHeaders, Authorization, X-Requested-With");
 include_once '../../config/database.php';
-include_once '../../models/barang.php';
+include_once '../../models/penjualan.php';
 
 $database = new Database();
 $db = $database->getConnection();
 if(isset($_GET['id'])){
-    $item = new Barang($db);
+    $item = new Penjualan($db);
     $item->id = isset($_GET['id']) ? $_GET['id'] : die();
-    $item->getSingleBarang();
-    if($item->kd_brg != null){
+    $item->getSingleSell();
+    if($item->trxid != null){
         // create array
         $emp_arr = array(
         "id" => $item->id,
-        "kd_brg" => $item->kd_brg,
-        "nama_brg" => $item->nama_brg,
-        "stock" => $item->stock,
-        "harga_brg" => $item->harga_brg,
-        "jenis_brg" => $item->jenis_brg,
-        "harga_beli" => $item->harga_beli
+        "trxid" => $item->trxid,
+        "nama_customer" => $item->nama_customer,
+        "date_sell" => $item->date_sell,
+        "nama_customer" => $item->nama_customer,
+        "kasir" => $item->kasir,
+        "grand_total" => $item->grand_total
         );
         http_response_code(200);
         echo json_encode($emp_arr);
@@ -33,30 +33,31 @@ if(isset($_GET['id'])){
     }
 }
 else {
-    $items = new Barang($db);
-    $stmt = $items->getBarangs();
+    $items = new Penjualan($db);
+    $stmt = $items->getSells();
     $itemCount = $stmt->rowCount();
     if($itemCount > 0){
-        $BarangArr = array();
-        $BarangArr["body"] = array();
-        $BarangArr["itemCount"] = $itemCount;
+        $SellsArr = array();
+        $SellsArr["body"] = array();
+        $SellsArr["itemCount"] = $itemCount;
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
             extract($row);
             $e = array(
                 "id" => $id,
-                "kd_brg" => $kd_brg,
-                "nama_brg" => $nama_brg,
-                "stock" => $stock,
-                "harga_brg" => $harga_brg,
-                "jenis_brg" => $jenis_brg
+                "trxid" => $trxid,
+                "nama_customer" => $nama_customer,
+                "date_sell" => $date_sell,
+                "nama_customer" => $nama_customer,
+                "kasir" => $kasir,
+                "grand_total" => $grand_total
             );
-            array_push($BarangArr["body"], $e);
+            array_push($SellsArr["body"], $e);
         }
-        echo json_encode($BarangArr);
+        echo json_encode($SellsArr);
     }
     else{
         http_response_code(404);
-        echo json_encode(array("messstock" => "No record found."));
+        echo json_encode(array("messdate_sell" => "No record found."));
     }
 }
 ?>
