@@ -62,7 +62,7 @@ if (!isset($_SESSION['user'])) {
                 <div class="row">
                     <div class="col col-sm-9">SELLS</div>
                     <div class="col col-sm-3">
-                        <button type="button" id="add_data" class="btn btn-success btn-sm float-end">Add</button>
+                        <a href="http://localhost:81/konterku/views/penjualan/add.php" class="btn btn-success btn-sm float-end">Add</a>
                     </div>
                 </div>
             </div>
