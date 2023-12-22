@@ -72,12 +72,28 @@ class PenjualanDetail{
         $stmt->bindParam(1, $this->trxid);
         $stmt->execute();
         $dataRow = $stmt->fetch(PDO::FETCH_ASSOC);
-        $this->kd_brg = $dataRow['kd_brg'];
-        $this->trxid = $dataRow['trxid'];
-        $this->nama_barang = $dataRow['nama_barang'];
-        $this->harga_jual = $dataRow['harga_jual'];
-        $this->qty = $dataRow['qty'];
-        $this->sub_total = $dataRow['sub_total'];
+        return $dataRow;
+    }
+
+    public function setDecrease(){
+        $sqlQuery = "SELECT
+        id,
+        kd_brg,
+        trxid,
+        nama_barang,
+        harga_jual,
+        qty,
+        sub_total
+        FROM
+        ". $this->db_table ."
+        WHERE
+        trxid = ?
+        LIMIT 0,1";
+        $stmt = $this->conn->prepare($sqlQuery);
+        $stmt->bindParam(1, $this->id);
+        $stmt->execute();
+        $dataRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $dataRow;
     }
     
 }
