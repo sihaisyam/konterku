@@ -28,6 +28,7 @@ if($item->createSell()){
         $details->sub_total = $barang->sub_total;
         if(!$details->createSellDetail()){
             $db->rollBack();
+            http_response_code(500);
             echo json_encode('Produk '.$barang->nama_barang.' saldo tidak mencukupi.');
             return false;
         }
@@ -36,6 +37,6 @@ if($item->createSell()){
     echo json_encode('Penjualan created successfully.');
 } else{
     $db->rollBack();
-    echo 'Penjualan could not be created.';
+    echo json_encode('Penjualan could not be created.');
 }
 ?>

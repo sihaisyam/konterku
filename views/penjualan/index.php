@@ -215,7 +215,7 @@ if (!isset($_SESSION['user'])) {
                         'date_sell' : json[i].date_sell,
                         'kasir' : json[i].kasir,
                         'grand_total' : json[i].grand_total,
-                        'action' : '<button onclick="deleteOne('+json[i].id+')" class="btn btn-sm btn-danger">Delete</button>'
+                        'action' : '<button onclick="deleteOne(\''+json[i].trxid+'\')" class="btn btn-sm btn-danger">Delete</button>'
                     };
                     dataSet.push(sub_array);
                 }
@@ -262,12 +262,12 @@ if (!isset($_SESSION['user'])) {
         });
     }
 
-    function deleteOne(id) {
+    function deleteOne(trxid) {
         alert('Yakin untuk hapus data ?');
         $.ajax({
             url:"http://localhost:81/konterku/api/penjualan/delete.php",
             method:"DELETE",
-            data: JSON.stringify({"id" : id}),
+            data: JSON.stringify({"trxid" : trxid}),
             success:function(data){
                 $('#action_button').attr('disabled', false);
                 $('#message').html('<div class="alert alert-success">'+data+'</div>');
@@ -277,6 +277,7 @@ if (!isset($_SESSION['user'])) {
             },
             error: function(err) {
                 console.log(err);
+                $('#message').html('<div class="alert alert-danger">'+err.responseJSON+'</div>');  
             }
         });
     }

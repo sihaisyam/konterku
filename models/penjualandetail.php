@@ -120,6 +120,18 @@ class PenjualanDetail{
         $dataRow = $stmt->fetch(PDO::FETCH_ASSOC);
         return $dataRow;
     }
+
+    function deleteDetails(){
+        $sqlQuery = "DELETE FROM " . $this->db_table . " WHERE trxid = ?";
+        $stmt = $this->conn->prepare($sqlQuery);
+        $this->trxid=htmlspecialchars(strip_tags($this->trxid));
+        $stmt->bindParam(1, $this->trxid);
+
+        if($stmt->execute()){
+            return true;
+        }
+        return false;
+    }
     
 }
 ?>

@@ -16,6 +16,9 @@ if (!isset($_SESSION['user'])) {
   </head>
   <body>
     <div class="container">
+        
+        <div id="message">
+        </div>
         <div class="container px-4">
             <form class="row g-1" id="sample_form">
                 <div class="col-md-6">
@@ -28,7 +31,7 @@ if (!isset($_SESSION['user'])) {
                 </div>
                 <div class="col-md-6">
                     <label for="date_cell" class="form-label">Tanggal</label>
-                    <input type="date" class="form-control" id="date_cell">
+                    <input type="date" class="form-control" id="date_sell">
                 </div>
                 <div class="col-md-6">
                     <label for="kasir" class="form-label">Kasir</label>
@@ -38,6 +41,9 @@ if (!isset($_SESSION['user'])) {
                     <div class="row g-1 p-1" >
                         <div class="col-md-2">
                             <label for="kasir" class="form-label">Kode Barang</label>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="kasir" class="form-label">Nama Barang</label>
                         </div>
                         <div class="col-md-2">
                             <label for="kasir" class="form-label">Harga</label>
@@ -55,6 +61,9 @@ if (!isset($_SESSION['user'])) {
                     <div class="row g-1 p-1" data-area="area_50">
                         <div class="col-md-2">
                             <input type="text" class="form-control" name="kd_brg[]" id="kd_brg">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="nama_brg[]" id="nama_brg">
                         </div>
                         <div class="col-md-2">
                             <input type="text" class="form-control" name="harga_jual[]" id="harga_jual">
@@ -94,20 +103,43 @@ if (!isset($_SESSION['user'])) {
 
             $('#sample_form').on('submit', function(event){
                 event.preventDefault();
+
+                const details = [];
+                $('[data-area]').each(function() {
+                    detail = {
+                        "trxid": $('#notrx').val(),
+                        "kd_brg": $(this).find('input#kd_brg').val(),
+                        "nama_barang":$(this).find('input#nama_brg').val(),
+                        "harga_jual": $(this).find('input#harga_jual').val(),
+                        "qty": $(this).find('input#qty').val(),
+                        "sub_total":$(this).find('input#sub_total').val()
+                    };
+                    details.push(detail);
+                });
+
+                
                 
                 var formData = {
-                'kd_brg' : $('#kd_brg').val()
+                    "trxid": $('#notrx').val(),
+                    "date_sell": $('#date_sell').val(),
+                    "nama_customer": $('#nama_customer').val(),
+                    "kasir": $('#nama_customer').val(),
+                    "grand_total" : $('#total').val(),
+                    "details" : details
                 }
+                console.log(JSON.stringify(formData));
+
                 $.ajax({
                     url:"http://localhost:81/konterku/api/penjualan/create.php",
                     method:"POST",
                     data: JSON.stringify(formData),
                     success:function(data){
                         $('#action_button').attr('disabled', false);
-                        $('#message').html('<div class="alert alert-success">'+data.message+'</div>');
+                        window.location.href = 'http://localhost:81/konterku/views/penjualan/';
                     },
                     error: function(err) {
                         console.log(err);   
+                        $('#message').html('<div class="alert alert-danger">'+err.responseJSON+'</div>');  
                     }
                 });
             });
